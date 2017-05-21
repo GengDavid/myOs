@@ -713,65 +713,35 @@ interrupt36h proc
 interrupt36h endp
 
 
-Finite dw 0	
+
 Pro_Timer:
-;*****************************************
-;*                Save                   *
-; ****************************************
-    cmp word ptr[_Program_Num],0
-	jnz Save
-	jmp another_Timer
-Save:
-	inc word ptr[Finite]
-	cmp word ptr[Finite],1600
-	jnz Lee 
-    mov word ptr[_CurrentPCBno],0
-	mov word ptr[Finite],0
-	mov word ptr[_Program_Num],0
-	mov word ptr[_offset_user],3100h
-	jmp Pre
-Lee:
-    push ss
-	push ax
-	push bx
-	push cx
-	push dx
-	push sp
-	push bp
-	push si
-	push di
-	push ds
-	push es
+
+    cli
+	push ss 	;*/flags/cs/ip/ss
+	push ax	;*/flags/cs/ip/ss/ax/
+	push bx	;*/flags/cs/ip/ss/ax/bx/
+	push cx	;*/flags/cs/ip/ss/ax/bx/cx/
+	push dx	;*/flags/cs/ip/ss/ax/bx/cx/dx/
+	push sp	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/
+	push bp	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/
+	push si		;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/
+	push di	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/
+	push ds	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/ds/
+	push es	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/ds/es/
 	.386
-	push fs
-	push gs
+	push fs	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/ds/es/fs/
+	push gs	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/ds/es/fs/gs
 	.8086
-
-	mov ax,cs
-	mov ds, ax
-	mov es, ax
-
 	call near ptr _Save_Process
 	call near ptr _Schedule 
-	
-Pre:
-	mov ax, cs
-	mov ds, ax
-	mov es, ax
-	
 	call near ptr _Current_Process
-	mov bp, ax
-
-	mov ss,word ptr ds:[bp+0]         
-	mov sp,word ptr ds:[bp+16] 
-
-	cmp word ptr ds:[bp+32],0 
-	jnz No_First_Time
-
-
-Restart:
-    call near ptr _special
+	mov bp,ax
+	mov ss,word ptr ds:[bp+0]
+	mov sp,word ptr ds:[bp+16];*/flags/cs/ip/ss/ax/bx/cx/dx/
 	
+	add sp,16 ;*/
+	
+Restart:
 	push word ptr ds:[bp+30]
 	push word ptr ds:[bp+28]
 	push word ptr ds:[bp+26]
@@ -801,27 +771,14 @@ Restart:
 	pop fs
 	pop gs
 	.8086
-
-	push ax         
-	mov al,20h
-	out 20h,al
-	out 0A0h,al
-	pop ax
-	iret
-
-No_First_Time:	
-	add sp,16 
-	jmp Restart
 	
-No_Progress:
-	call another_Timer
-	push ax         
-	mov al,20h
+	push ax
+    mov al,20h
 	out 20h,al
-	out 0A0h,al
+	out 0a0h,al
 	pop ax
-	iret
-	
+    sti
+    iret
 	
 
 SetTimer: 
@@ -849,7 +806,7 @@ _setClock proc
 	mov es,ax
 	mov word ptr es:[20h],offset Pro_Timer
 	mov ax,cs
-	mov word ptr es:[22h],cs
+	mov word ptr es:[22h],ax
 	
 	pop ax
 	mov es,ax
@@ -876,7 +833,7 @@ _another_load proc
 	mov ah,2           	;功能号
 	mov al,2          	;扇区数
 	mov dl,0          	;驱动器号 ; 软盘为0，硬盘和U盘为80H
-	mov dh,1          	;磁头号 ; 起始编号为0
+	mov dh,0          	;磁头号 ; 起始编号为0
 	mov ch,0          	;柱面号 ; 起始编号为0
 	mov cl,[bp+10]       ;起始扇区号 ; 起始编号为1
 	int 13H          	; 调用中断
@@ -936,7 +893,7 @@ show:
 	pop cx
 	pop bx
 	pop ax
-	ret
+	iret
 	
 
 	count db 0

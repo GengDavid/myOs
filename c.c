@@ -239,12 +239,11 @@ void load_pro(){
 		Program_Num ++;
 	}
 	printchar(Program_Num+'0');
-	init_pro();
-	setClock();
+
 }
 
 cmain(){
-
+	setClock();
 	while(1)
 {
 	clear();

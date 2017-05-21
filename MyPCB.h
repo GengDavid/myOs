@@ -74,9 +74,9 @@ void Schedule(){
 	pcb_list[CurrentPCBno].Process_Status = READY;
 
 	CurrentPCBno ++;
-	if( CurrentPCBno > Program_Num )
+	if( CurrentPCBno > Program_Num &&Program_Num)
 		CurrentPCBno = 1;
-
+	else CurrentPCBno = 0;
 	if( pcb_list[CurrentPCBno].Process_Status != NEW )
 		pcb_list[CurrentPCBno].Process_Status = RUNNING;
 	return;
@@ -84,7 +84,6 @@ void Schedule(){
 
 
 PCB* Current_Process(){
-
 	return &pcb_list[CurrentPCBno];
 }
 
