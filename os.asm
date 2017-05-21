@@ -722,7 +722,6 @@ Pro_Timer:
 	jnz Save
 	jmp another_Timer
 Save:
-	
 	inc word ptr[Finite]
 	cmp word ptr[Finite],1600
 	jnz Lee 
