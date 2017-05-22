@@ -1,5 +1,6 @@
+org 100h
 start:
-	mov ax,0bd0h
+	mov ax,5000h
 	mov ds,ax
 	mov ax,0xb800
 	mov es,ax
@@ -10,7 +11,8 @@ start:
 	mov byte[cnt], 0x01
 	mov byte[dirc],D_R
 	mov byte[run],1
-
+	mov ax,0003h ; ah = 0, al = 3 
+	int 10h ; 中断号10 ，清屏
 begin:
 	mov cx,070h
 	cmp word[cnt2], 0200h

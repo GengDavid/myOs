@@ -1,5 +1,6 @@
+org 100h
 start:	
-	mov ax,0c10h
+	mov ax,6000h
 	mov ds,ax
 	mov ax,0b800h
 	mov es,ax

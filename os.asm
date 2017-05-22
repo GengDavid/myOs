@@ -827,25 +827,32 @@ _setClock endp
 
 public _another_load
 _another_load proc
-    push ax
+
+	push ax
+	push bx
+	push cx
+	push dx
+	push es
 	push bp
-	
 	mov bp,sp
-	
-    mov ax,[bp+6]      	;段地址 ; 存放数据的内存基地址
-	mov es,ax          	;设置段地址（不能直接mov es,段地址）
-	mov bx,100h        	;偏移地址; 存放数据的内存偏移地址
-	mov ah,2           	;功能号
-	mov al,2          	;扇区数
-	mov dl,0          	;驱动器号 ; 软盘为0，硬盘和U盘为80H
-	mov dh,0          	;磁头号 ; 起始编号为0
-	mov ch,0          	;柱面号 ; 起始编号为0
-	mov cl,[bp+8]       ;起始扇区号 ; 起始编号为1
-	int 13H          	; 调用中断
-	
+	mov ax,word ptr [bp+12+2]              
+    mov es,ax                ;设置段地址
+    mov bx,100h  			 ;偏移地址
+    mov ah,2                 ; 功能号
+    mov al,byte ptr [bp+12+4] ;扇区数
+    mov dl,0                 ;驱动器号
+    mov dh,0                 ;磁头号
+    mov ch,0                 ;柱面号
+    mov cl,byte ptr [bp+12+6];起始扇区号
+    int 13H ;
 	pop bp
+	pop es
+	pop dx
+	pop cx
+	pop bx
 	pop ax
-	
+
+
 	ret
 _another_load endp
 

@@ -10,7 +10,7 @@ extern void filldata();
 extern void readdata();
 extern int put_color_char();
 extern void setClock();
-extern void another_load(int segment,int offset);
+extern void another_load(int segment,int num_sq,int offset);
 #include  "MyPCB.h"
 
 char message1[80]="Welcome to use system of zgw and xh\n";
@@ -42,15 +42,15 @@ int i=0;
 int a=0;
 int u=0;
 int d=0;/*data*/
-int offset_user=0xb100-0x8000;/*用户程序偏移量*/
-const int offset_user1=0xb100-0x8000;
-const int offset_user2=0xb500-0x8000;
-const int offset_user3=0xb900-0x8000;
-const int offset_user4=0xbd00-0x8000;
-const int offset_user5=0xc100-0x8000;
-const int offset_user6=0xc500-0x8000;
+int offset_user=0x2000;
+const int offset_user1=0x2000;
+const int offset_user2=0x3000;
+const int offset_user3=0x4000;
+const int offset_user4=0x5000;
+const int offset_user5=0x6000;
+const int offset_user6=0x7000;
 const int hex600h=1536;/*600h*/
-int offset_begin=0xb100-0x8000;/*读到内存的偏移量*/
+int offset_begin=0x2000;/*读到内存的偏移量*/
 int num_shanqu=12;/*扇区数*/
 int pos_shanqu=2;/*起始扇区数*/
 
@@ -195,15 +195,17 @@ batch()
 
 
 void init_pro(){
-	init(&pcb_list[0],0x800,0x100);
-	init(&pcb_list[1],0xb10,0x100);
-	init(&pcb_list[2],0xb50,0x100);
-	init(&pcb_list[3],0xb90,0x100);
-	init(&pcb_list[4],0xc10,0x100);
-	init(&pcb_list[5],0xc50,0x100);
+	init(&pcb_list[0],0x1000,0x100);
+	init(&pcb_list[1],offset_user1,0x100);
+	init(&pcb_list[2],offset_user2,0x100);
+	init(&pcb_list[3],offset_user3,0x100);
+	init(&pcb_list[4],offset_user4,0x100);
+	init(&pcb_list[5],offset_user5,0x100);
 }
 
-
+int is_num(char c){
+	return c>='0'&&c<='9';
+}
 void load_pro(){
 	int i = 0;
 	int sq;
@@ -215,30 +217,31 @@ void load_pro(){
 			continue;
 		else if(string[i]=='1')/*跳转到用户程序1*/
 		{
-			offset_user=0xb10;
+			offset_user=offset_user1;
 		}
 		else if(string[i]=='2')/*跳转到用户程序2*/
 		{
-			offset_user=0xb50;
+			offset_user=offset_user2;
 		}
 		else if(string[i]=='3')/*跳转到用户程序3*/
 		{
-			offset_user=0xb90;
+			offset_user=offset_user3;
 		}
 		else if(string[i]=='4')/*跳转到用户程序4*/
 		{
-			offset_user=0xc10;
+			offset_user=offset_user4;
 		}
 		else if(string[i]=='5'){
-			offset_user=0xc50;
+			offset_user=offset_user5;
 		}
 		sq=string[i]-'0';
 		sq = sq*2;
-		load(offset_user,2,sq);
+		another_load(offset_user,2,sq);
 		cnt ++;
 	}
 	Program_Num = cnt;
 }
+
 
 cmain(){
 	pcb_list[0].Process_Status = READY;

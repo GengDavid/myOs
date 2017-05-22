@@ -1,5 +1,5 @@
 org  7c00h		; BIOS将把引导扇区加载到0:7C00h处，并开始执行
-Kernal equ 800h
+Kernal equ 1000h
 OffSetOfKernal equ 100h
 Start:
      ;读软盘或硬盘上的若干物理扇区到内存的ES:BX处：
