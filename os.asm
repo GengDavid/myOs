@@ -747,6 +747,7 @@ Pro_Timer:
 	add sp,16 ;*/
 	
 Restart:
+	call near ptr _special
 	push word ptr ds:[bp+30]
 	push word ptr ds:[bp+28]
 	push word ptr ds:[bp+26]

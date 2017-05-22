@@ -72,8 +72,6 @@ void Save_Process(int gs,int fs,int es,int ds,int di,int si,int bp,
 }
 
 void Schedule(){
-	printChar(Program_Num+'0');
-	printChar('a');
 	pcb_list[CurrentPCBno].Process_Status = READY;
 
 	CurrentPCBno ++;
@@ -81,6 +79,7 @@ void Schedule(){
 		CurrentPCBno = 1;
 	if(Program_Num==0)
 		CurrentPCBno = 0;
+	printChar(Program_Num+'0');
 	if( pcb_list[CurrentPCBno].Process_Status != NEW )
 		pcb_list[CurrentPCBno].Process_Status = RUNNING;
 	return;
@@ -98,7 +97,7 @@ void init(PCB* pcb,int segement, int offset)
 	pcb->regImg.ES = segement;
 	pcb->regImg.DS = segement;
 	pcb->regImg.CS = segement;
-	pcb->regImg.FS = segement;
+	pcb->regImg.FS =  segement;
 	pcb->regImg.IP = offset;
 	pcb->regImg.SP = offset - 4;
 	pcb->regImg.AX = 0;

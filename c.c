@@ -42,15 +42,15 @@ int i=0;
 int a=0;
 int u=0;
 int d=0;/*data*/
-int offset_user=0x2000;/*用户程序偏移量*/
-const int offset_user1=0x2000;
-const int offset_user2=0x3000;
-const int offset_user3=0x4000;
-const int offset_user4=0x5000;
-const int offset_user5=0x6000;
-const int offset_user6=0x7000;
+int offset_user=0xb100-0x8000;/*用户程序偏移量*/
+const int offset_user1=0xb100-0x8000;
+const int offset_user2=0xb500-0x8000;
+const int offset_user3=0xb900-0x8000;
+const int offset_user4=0xbd00-0x8000;
+const int offset_user5=0xc100-0x8000;
+const int offset_user6=0xc500-0x8000;
 const int hex600h=1536;/*600h*/
-int offset_begin=0x2000;/*读到内存的偏移量*/
+int offset_begin=0xb100-0x8000;/*读到内存的偏移量*/
 int num_shanqu=12;/*扇区数*/
 int pos_shanqu=2;/*起始扇区数*/
 
@@ -196,50 +196,48 @@ batch()
 
 void init_pro(){
 	init(&pcb_list[0],0x800,0x100);
-	init(&pcb_list[1],offset_user1,0x100);
-	init(&pcb_list[2],offset_user2,0x100);
-	init(&pcb_list[3],offset_user3,0x100);
-	init(&pcb_list[4],offset_user4,0x100);
-	init(&pcb_list[5],offset_user5,0x100);
+	init(&pcb_list[1],0xb10,0x100);
+	init(&pcb_list[2],0xb50,0x100);
+	init(&pcb_list[3],0xb90,0x100);
+	init(&pcb_list[4],0xc10,0x100);
+	init(&pcb_list[5],0xc50,0x100);
 }
 
 
 void load_pro(){
 	int i = 0;
-	int j = 0;
-
+	int sq;
+	int cnt= 0;
+	init_pro();
 	for( i=0; i<len;i++ )
 	{
 		if( string[i] ==' ' )
 			continue;
 		else if(string[i]=='1')/*跳转到用户程序1*/
 		{
-			offset_user=offset_user1;
+			offset_user=0xb10;
 		}
 		else if(string[i]=='2')/*跳转到用户程序2*/
 		{
-			offset_user=offset_user2;
+			offset_user=0xb50;
 		}
 		else if(string[i]=='3')/*跳转到用户程序3*/
 		{
-			offset_user=offset_user3;
+			offset_user=0xb90;
 		}
 		else if(string[i]=='4')/*跳转到用户程序4*/
 		{
-			offset_user=offset_user4;
+			offset_user=0xc10;
 		}
 		else if(string[i]=='5'){
-			offset_user=offset_user5;
+			offset_user=0xc50;
 		}
-		else if(string[i]=='6'){
-			offset_user=offset_user6;
-		}
-		j = string[i] - '0';		
-		j=j*2;
-		another_load(offset_user,j);
-		Program_Num ++;
+		sq=string[i]-'0';
+		sq = sq*2;
+		load(offset_user,2,sq);
+		cnt ++;
 	}
-		init_pro();
+	Program_Num = cnt;
 }
 
 cmain(){
