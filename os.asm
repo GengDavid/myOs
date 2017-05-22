@@ -26,7 +26,8 @@ DGROUP group _TEXT,_DATA,_BSS
 start:
 	mov  ax,  cs
 	mov  ds,  ax         
-	mov  es,  ax        
+	mov  es,  ax 
+	mov  ax, 700h
 	mov  ss,  ax      
 	mov  sp, 100h
 	call int36h
@@ -732,6 +733,10 @@ Pro_Timer:
 	push fs	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/ds/es/fs/
 	push gs	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/ds/es/fs/gs
 	.8086
+
+	mov ax,cs
+	mov ds,ax
+	mov es,ax
 	call near ptr _Save_Process
 	call near ptr _Schedule 
 	call near ptr _Current_Process
@@ -822,12 +827,11 @@ _setClock endp
 public _another_load
 _another_load proc
     push ax
-	push ds
 	push bp
 	
 	mov bp,sp
 	
-    mov ax,[bp+8]      	;段地址 ; 存放数据的内存基地址
+    mov ax,[bp+6]      	;段地址 ; 存放数据的内存基地址
 	mov es,ax          	;设置段地址（不能直接mov es,段地址）
 	mov bx,100h        	;偏移地址; 存放数据的内存偏移地址
 	mov ah,2           	;功能号
@@ -835,12 +839,10 @@ _another_load proc
 	mov dl,0          	;驱动器号 ; 软盘为0，硬盘和U盘为80H
 	mov dh,0          	;磁头号 ; 起始编号为0
 	mov ch,0          	;柱面号 ; 起始编号为0
-	mov cl,[bp+10]       ;起始扇区号 ; 起始编号为1
+	mov cl,[bp+8]       ;起始扇区号 ; 起始编号为1
 	int 13H          	; 调用中断
 	
 	pop bp
-	pop ax
-	mov ds,ax
 	pop ax
 	
 	ret

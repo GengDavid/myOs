@@ -48,6 +48,8 @@ void special();
 void Save_Process(int gs,int fs,int es,int ds,int di,int si,int bp,
 		int sp,int dx,int cx,int bx,int ax,int ss,int ip,int cs,int flags)
 {
+	int x;
+	char c;
 	pcb_list[CurrentPCBno].regImg.AX = ax;
 	pcb_list[CurrentPCBno].regImg.BX = bx;
 	pcb_list[CurrentPCBno].regImg.CX = cx;
@@ -70,13 +72,15 @@ void Save_Process(int gs,int fs,int es,int ds,int di,int si,int bp,
 }
 
 void Schedule(){
-
+	printChar(Program_Num+'0');
+	printChar('a');
 	pcb_list[CurrentPCBno].Process_Status = READY;
 
 	CurrentPCBno ++;
-	if( CurrentPCBno > Program_Num &&Program_Num)
+	if( CurrentPCBno > Program_Num)
 		CurrentPCBno = 1;
-	else CurrentPCBno = 0;
+	if(Program_Num==0)
+		CurrentPCBno = 0;
 	if( pcb_list[CurrentPCBno].Process_Status != NEW )
 		pcb_list[CurrentPCBno].Process_Status = RUNNING;
 	return;

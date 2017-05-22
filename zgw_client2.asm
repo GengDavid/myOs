@@ -1,5 +1,5 @@
 start:
-	mov ax,0b50h
+	mov ax,3000h
 	mov ds,ax
 	mov ax,0xb800
 	mov es,ax

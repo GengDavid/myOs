@@ -42,15 +42,15 @@ int i=0;
 int a=0;
 int u=0;
 int d=0;/*data*/
-int offset_user=0xb100-0x8000;/*用户程序偏移量*/
-const int offset_user1=0xb100-0x8000;
-const int offset_user2=0xb500-0x8000;
-const int offset_user3=0xb900-0x8000;
-const int offset_user4=0xbd00-0x8000;
-const int offset_user5=0xc100-0x8000;
-const int offset_user6=0xc500-0x8000;
+int offset_user=0x2000;/*用户程序偏移量*/
+const int offset_user1=0x2000;
+const int offset_user2=0x3000;
+const int offset_user3=0x4000;
+const int offset_user4=0x5000;
+const int offset_user5=0x6000;
+const int offset_user6=0x7000;
 const int hex600h=1536;/*600h*/
-int offset_begin=0xb100-0x8000;/*读到内存的偏移量*/
+int offset_begin=0x2000;/*读到内存的偏移量*/
 int num_shanqu=12;/*扇区数*/
 int pos_shanqu=2;/*起始扇区数*/
 
@@ -235,79 +235,82 @@ void load_pro(){
 			offset_user=offset_user6;
 		}
 		j = string[i] - '0';		
+		j=j*2;
 		another_load(offset_user,j);
 		Program_Num ++;
 	}
-	printchar(Program_Num+'0');
-
+		init_pro();
 }
 
 cmain(){
+	pcb_list[0].Process_Status = READY;
+	CurrentPCBno = 0;
 	setClock();
+
 	while(1)
-{
-	clear();
-	printstring(message1);
-	printstring(message2);
-	printstring(message3);
-	printstring(message4);
-	printstring(message7);
-	printstring(message8);
-	printstring(message9);
-	printstring(message10);
-	cin_cmd();
-	if(string[0]=='b')
 	{
-		batch();
-		printstring(message11);
+		clear();
+		printstring(message1);
+		printstring(message2);
+		printstring(message3);
+		printstring(message4);
+		printstring(message7);
+		printstring(message8);
+		printstring(message9);
+		printstring(message10);
 		cin_cmd();
-		if(string[0]=='y') continue;
-	}
-	else if(string[0]=='s')
-	{
-		printstring(message_show0);
-		printstring(message_show1);
-		printstring(message_show2);
-		printstring(message_show3);
-		printstring(message_show4);
-		printstring(message_show5);
-		printstring(message11);
-		cin_cmd();
-		if(string[0]=='y') continue;
-	}
-	else if(string[0]=='d')
-	{
-		printstring(message12);
-		printstring(message11);
-		cin_cmd();
-		if(string[0]=='y')
+		if(string[0]=='b')
 		{
-			for(i=0;i<80;++i){
-				string[i]=default1[i];
-				if(default1[i]=='\0')
-				{
-					len=i;
-					break;
-				}
-			}
 			batch();
-			
 			printstring(message11);
 			cin_cmd();
+			if(string[0]=='y') continue;
+		}
+		else if(string[0]=='s')
+		{
+			printstring(message_show0);
+			printstring(message_show1);
+			printstring(message_show2);
+			printstring(message_show3);
+			printstring(message_show4);
+			printstring(message_show5);
+			printstring(message11);
+			cin_cmd();
+			if(string[0]=='y') continue;
+		}
+		else if(string[0]=='d')
+		{
+			printstring(message12);
+			printstring(message11);
+			cin_cmd();
+			if(string[0]=='y')
+			{
+				for(i=0;i<80;++i){
+					string[i]=default1[i];
+					if(default1[i]=='\0')
+					{
+						len=i;
+						break;
+					}
+				}
+				batch();
+				
+				printstring(message11);
+				cin_cmd();
+			}
+		}
+		else if(string[0]=='r'){
+			load_pro();
+			printstring(message11);
+			cin_cmd();
+			if(string[0]=='y') continue;
+		}
+		else{
+			printstring(message_error);
+			printstring(message11);
+			cin_cmd();
+			if(string[0]=='y') continue;
 		}
 	}
-	else if(string[0]=='r'){
-		load_pro();
-		printstring(message11);
-		cin_cmd();
-		if(string[0]=='y') continue;
-	}
-	else{
-		printstring(message_error);
-		printstring(message11);
-		cin_cmd();
-		if(string[0]=='y') continue;
-	}
-}
 }
 
