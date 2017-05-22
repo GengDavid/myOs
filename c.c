@@ -15,14 +15,11 @@ extern void another_load(int segment,int num_sq,int offset);
 
 char message1[80]="Welcome to use system of zgw and xh\n";
 char message2[80]="you can input some legal instructions\n";
-char message3[80]="    if you want to run the program by Batching,input \'batch\'\n";
-char message4[80]="       for example: b 1 2 3 4 5 6\n";
 char message7[80]="    if you want to know the information of the program,input \'show\'\n";
 char message8[80]="       for example: show\n";
-char message9[80]="    if you want to run the default instructions,input \'default\'\n";
-char message10[80]="       for example: default\n\n";
 char message11[80]="If you want to continue,input \'yes\'\n";
-char message12[80]="OS will run instructions \'batch 1 2 3 4 5 6\' \n";
+char message13[80]="    If you want to run the program by Time-Sharing,input \'run\'\n";
+char message14[80]="		for example: run 1 2 3 4\n";
 char message_cmd[80]="Commond> ";
 char message_show0[80]="GROUP MEMBER:\n zhang_geng_wei 15352403, \n xie_hong 15352355\n";
 char message_show1[80]="USER PROGRAM1:\n   Name:zgw_clinet1,Size:1024byte,Position:section 2\n";
@@ -32,7 +29,6 @@ char message_show4[80]="USER PROGRAM4:\n   Name:zgw_clinet4,Size:1024byte,Positi
 char message_show5[80]="USER PROGRAM5:\n   Name:xh_game,Size:1024byte,Position:section 10\n";
 char string[80];
 char message_error[80]="INPUT ERROR!!\n";
-const char default1[80]="batch 1 2 3 4 5 6";
 int len=0;
 int pos=0;
 char ch;
@@ -148,50 +144,6 @@ cal_pos()
 	setcursor();
 }
 
-batch()
-{
-	clear();/*清屏*/
-	offset_begin=offset_user1;/*内存偏移量*/
-	num_shanqu=12;/*扇区数目*/
-	pos_shanqu=2;/*起始扇区号*/
-	load(offset_begin,num_shanqu,pos_shanqu);/*装载用户程序到内存*/
-	/*向600h,602h,604h,606h送0*/
-	filldata(hex600h,0);
-	filldata(hex600h+2,0);
-	filldata(hex600h+4,0);
-	filldata(hex600h+6,0);
-	for(i=0;i<len;++i)/*遍历字符串*/
-	{
-		if(string[i]=='1')/*跳转到用户程序1*/
-		{
-			offset_user=offset_user1;
-			jmp();
-		}
-		else if(string[i]=='2')/*跳转到用户程序2*/
-		{
-			offset_user=offset_user2;
-			jmp();
-		}
-		else if(string[i]=='3')/*跳转到用户程序3*/
-		{
-			offset_user=offset_user3;
-			jmp();
-		}
-		else if(string[i]=='4')/*跳转到用户程序4*/
-		{
-			offset_user=offset_user4;
-			jmp();
-		}
-		else if(string[i]=='5'){
-			offset_user=offset_user5;
-			jmp();
-		}
-		else if(string[i]=='6'){
-			offset_user=offset_user6;
-			jmp();
-		}
-	}
-}
 
 
 void init_pro(){
@@ -213,7 +165,7 @@ void load_pro(){
 	init_pro();
 	for( i=0; i<len;i++ )
 	{
-		if( string[i] ==' ' )
+		if( !is_num(string[i]) )
 			continue;
 		else if(string[i]=='1')/*跳转到用户程序1*/
 		{
@@ -253,21 +205,12 @@ cmain(){
 		clear();
 		printstring(message1);
 		printstring(message2);
-		printstring(message3);
-		printstring(message4);
 		printstring(message7);
 		printstring(message8);
-		printstring(message9);
-		printstring(message10);
+		printstring(message13);
+		printstring(message14);
 		cin_cmd();
-		if(string[0]=='b')
-		{
-			batch();
-			printstring(message11);
-			cin_cmd();
-			if(string[0]=='y') continue;
-		}
-		else if(string[0]=='s')
+		if(string[0]=='s')
 		{
 			printstring(message_show0);
 			printstring(message_show1);
@@ -278,27 +221,6 @@ cmain(){
 			printstring(message11);
 			cin_cmd();
 			if(string[0]=='y') continue;
-		}
-		else if(string[0]=='d')
-		{
-			printstring(message12);
-			printstring(message11);
-			cin_cmd();
-			if(string[0]=='y')
-			{
-				for(i=0;i<80;++i){
-					string[i]=default1[i];
-					if(default1[i]=='\0')
-					{
-						len=i;
-						break;
-					}
-				}
-				batch();
-				
-				printstring(message11);
-				cin_cmd();
-			}
 		}
 		else if(string[0]=='r'){
 			load_pro();

@@ -265,7 +265,7 @@ _jmp proc
 	push dx
 	push es
 	push ds	
-	call word ptr [_offset_user]
+	jmp word ptr [_offset_user]
 	pop ds
 	pop es
 	pop dx
