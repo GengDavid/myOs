@@ -1,5 +1,3 @@
-d:
-cd D:\zhanggw_os\zhanggw_myos\lab5
 nasm zgw_client1.asm -o zgw_client1.bin
 nasm zgw_client2.asm -o zgw_client2.bin
 nasm zgw_client3.asm -o zgw_client3.bin
