@@ -47,6 +47,7 @@
 # report
 *.doc
 *.docx
+*.pdf
 
 # Kernel Module Compile Results
 *.mod*
