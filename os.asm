@@ -2,7 +2,6 @@ extrn _cmain:near
 extrn _cal_pos:near
 extrn _c_paint:near
 extrn _c_ouch:near
-
 extrn _pos:near
 extrn _ch:near
 extrn _x:near
@@ -34,7 +33,6 @@ start:
 	call near ptr _cmain
 	jmp $
 
-
 clock_vector dw 0,0
 
 ;置光标位置
@@ -53,6 +51,7 @@ _setcursor proc
 	pop ax
 	ret
 _setcursor endp
+
 ;输出一个字符
 public _printchar
 _printchar proc
@@ -145,7 +144,7 @@ _printstring proc
 ret
 _printstring  endp
 
-;输出一个字符串 printstring(color,char*)
+;输出一个指定颜色的字符串 printstring(color,char*)
 public _printstring2
 _printstring2 proc
     push bp
@@ -211,11 +210,8 @@ _clear proc
     push bx
     push cx
     push dx		
-    mov	ax, 0600h	; AH = 6,  AL = 0
-	mov	bx, 0700h	; 黑底白字(BL = 7)
-	mov	cx, 0		; 左上角: (0, 0)
-	mov	dx, 184fh	; 右下角: (24, 79)
-	int	10h		; 显示中断
+	mov ax,0003h ; ah = 0, al = 3 
+	int 10h ; 中断号10 ，清屏
 	mov word ptr [_x],0
 	mov word ptr [_y],0
 	mov word ptr [_pos],0
@@ -227,7 +223,7 @@ _clear proc
 ret
 _clear endp
 
-;读软盘到内存
+;读软盘到内存，偏移形式
 ;load(offset_begin,num_shanqu,pos_shanqu)
 public _load
 _load proc
@@ -256,6 +252,7 @@ _load proc
 	pop ax
 	ret
 _load endp
+
 ;跳转到用户程序
 public _jmp
 _jmp proc
@@ -274,6 +271,7 @@ _jmp proc
 	pop ax
 	ret
 _jmp endp
+
 ;filldata(int,int)
 public _filldata
 _filldata proc
@@ -299,6 +297,7 @@ _filldata proc
 	pop ax
 	ret
 _filldata endp
+
 ;readdata(int)
 public _readdata 
 _readdata proc
@@ -346,6 +345,7 @@ set_clock_interrupt proc
 	sti
 	ret
 set_clock_interrupt endp
+
 ;恢复时钟中断
 re_clock_interrupt proc
 	cli
@@ -716,7 +716,9 @@ interrupt36h endp
 
 
 Pro_Timer:
-
+;----------------------------------------------------
+;*******************SAVE*********************
+;----------------------------------------------------
     cli
 	push ss 	;*/flags/cs/ip/ss
 	push ax	;*/flags/cs/ip/ss/ax/
@@ -725,7 +727,7 @@ Pro_Timer:
 	push dx	;*/flags/cs/ip/ss/ax/bx/cx/dx/
 	push sp	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/
 	push bp	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/
-	push si		;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/
+	push si	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/
 	push di	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/
 	push ds	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/ds/
 	push es	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/ds/es/
@@ -742,40 +744,39 @@ Pro_Timer:
 	call near ptr _Current_Process
 	mov bp,ax
 	mov ss,word ptr ds:[bp+0]
-	mov sp,word ptr ds:[bp+16];*/flags/cs/ip/ss/ax/bx/cx/dx/
-	
-	add sp,16 ;*/
+	mov sp,word ptr ds:[bp+16];offset-20
+	add sp,16 ;offset-4 用户栈空 
 	
 Restart:
 	call near ptr _special
-	push word ptr ds:[bp+30]
-	push word ptr ds:[bp+28]
-	push word ptr ds:[bp+26]
+	push word ptr ds:[bp+30];*/psw/
+	push word ptr ds:[bp+28];*/psw/cs/
+	push word ptr ds:[bp+26];*/psw/cs/ip/
 	
-	push word ptr ds:[bp+2]
-	push word ptr ds:[bp+4]
-	push word ptr ds:[bp+6]
-	push word ptr ds:[bp+8]
-	push word ptr ds:[bp+10]
-	push word ptr ds:[bp+12]
-	push word ptr ds:[bp+14]
-	push word ptr ds:[bp+18]
-	push word ptr ds:[bp+20]
-	push word ptr ds:[bp+22]
-	push word ptr ds:[bp+24]
+	push word ptr ds:[bp+2];*/psw/cs/ip/gs/
+	push word ptr ds:[bp+4];*/psw/cs/ip/gs/fs/
+	push word ptr ds:[bp+6];*/psw/cs/ip/gs/fs/es/
+	push word ptr ds:[bp+8];*/psw/cs/ip/gs/fs/es/ds/
+	push word ptr ds:[bp+10];*/psw/cs/ip/gs/fs/es/ds/di/
+	push word ptr ds:[bp+12];*/psw/cs/ip/gs/fs/es/ds/di/si/
+	push word ptr ds:[bp+14];*/psw/cs/ip/gs/fs/es/ds/di/si/bp/
+	push word ptr ds:[bp+18];*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/
+	push word ptr ds:[bp+20];*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/dx/
+	push word ptr ds:[bp+22];*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/dx/cx/
+	push word ptr ds:[bp+24];*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/dx/cx/ax/
 
-	pop ax
-	pop cx
-	pop dx
-	pop bx
-	pop bp
-	pop si
-	pop di
-	pop ds
-	pop es
+	pop ax;*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/dx/cx/
+	pop cx;*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/dx/
+	pop dx;*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/
+	pop bx;*/psw/cs/ip/gs/fs/es/ds/di/si/bp/
+	pop bp;*/psw/cs/ip/gs/fs/es/ds/di/si/
+	pop si;*/psw/cs/ip/gs/fs/es/ds/di/
+	pop di;*/psw/cs/ip/gs/fs/es/ds/
+	pop ds;*/psw/cs/ip/gs/fs/es/
+	pop es;*/psw/cs/ip/gs/fs/
 	.386
-	pop fs
-	pop gs
+	pop fs;*/psw/cs/ip/gs/
+	pop gs;*/psw/cs/ip/
 	.8086
 	
 	push ax
@@ -786,7 +787,6 @@ Restart:
     sti
     iret
 	
-
 SetTimer: 
     push ax
     mov al,34h   ; 设控制字值 
@@ -815,19 +815,18 @@ _setClock proc
 	mov word ptr es:[22h],ax
 	
 	pop ax
-	mov es,ax
-	pop ax
-	mov ds,ax
-	pop dx
-	pop cx
-	pop bx
-	pop ax
+    mov es,ax
+    pop ax
+    mov ds,ax
+    pop dx
+    pop cx
+    pop bx
+    pop ax
 	ret
 _setClock endp
 
 public _another_load
 _another_load proc
-
 	push ax
 	push bx
 	push cx
@@ -851,62 +850,8 @@ _another_load proc
 	pop cx
 	pop bx
 	pop ax
-
-
 	ret
 _another_load endp
-
-another_Timer:
-    push ax
-	push bx
-	push cx
-	push dx
-	push bp
-    push es
-	push ds
-	
-	mov ax,cs
-	mov ds,ax
-
-	cmp byte ptr [ds:count],0
-	jz case1
-	cmp byte ptr [ds:count],1
-	jz case2
-	cmp byte ptr [ds:count],2
-	jz case3
-	
-case1:	
-    inc byte ptr [ds:count]
-	mov al,'/'
-	jmp show
-case2:	
-    inc byte ptr [ds:count]
-	mov al,'\'
-	jmp show
-case3:	
-    mov byte ptr [ds:count],0
-	mov al,'|'
-	jmp show
-	
-show:
-    mov bx,0b800h
-	mov es,bx
-	mov ah,0ah
-	mov es:[((80*24+78)*2)],ax
-	
-	pop ax
-	mov ds,ax
-	pop ax
-	mov es,ax
-	pop bp
-	pop dx
-	pop cx
-	pop bx
-	pop ax
-	iret
-	
-
-	count db 0
 	
 _TEXT ends
 

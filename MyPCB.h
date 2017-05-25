@@ -1,3 +1,4 @@
+extern void printChar();
 
 int NEW = 0;
 int READY = 1;
@@ -28,13 +29,10 @@ typedef struct PCB{
 	int Process_Status;
 }PCB;
 
-/*进程表*/
+
 PCB pcb_list[8];
 int CurrentPCBno = 0;  /*当前进程号*/
 int Program_Num = 0;  /*进程计数*/
-
-
-extern void printChar();
 
 PCB* Current_Process();
 void Save_Process(int,int, int, int, int, int, int, int,
@@ -43,13 +41,31 @@ void init(PCB*, int, int);
 void Schedule();
 void special();
 
+void init(PCB* pcb,int segement, int offset)
+{
+	pcb->regImg.SS = segement;
+	pcb->regImg.GS = 0xb800;
+	pcb->regImg.FS = segement;
+	pcb->regImg.ES = segement;
+	pcb->regImg.DS = segement;
+	pcb->regImg.CS = segement;
+	pcb->regImg.DI = 0;
+	pcb->regImg.SI = 0;
+	pcb->regImg.BP = 0;
+	pcb->regImg.SP = offset - 20;  /**/
+	pcb->regImg.BX = 0;
+	pcb->regImg.DX = 0;
+	pcb->regImg.CX = 0;
+	pcb->regImg.AX = 0;
+	pcb->regImg.IP = offset;
+	pcb->regImg.FLAGS = 512;
+	pcb->Process_Status = NEW;
+}
 
 /*保存当前PCB*/
 void Save_Process(int gs,int fs,int es,int ds,int di,int si,int bp,
 		int sp,int dx,int cx,int bx,int ax,int ss,int ip,int cs,int flags)
 {
-	int x;
-	char c;
 	pcb_list[CurrentPCBno].regImg.AX = ax;
 	pcb_list[CurrentPCBno].regImg.BX = bx;
 	pcb_list[CurrentPCBno].regImg.CX = cx;
@@ -79,7 +95,6 @@ void Schedule(){
 		CurrentPCBno = 1;
 	if(Program_Num==0)
 		CurrentPCBno = 0;
-	/*printChar(Program_Num+'0');*/
 	if( pcb_list[CurrentPCBno].Process_Status != NEW )
 		pcb_list[CurrentPCBno].Process_Status = RUNNING;
 	return;
@@ -90,26 +105,6 @@ PCB* Current_Process(){
 	return &pcb_list[CurrentPCBno];
 }
 
-void init(PCB* pcb,int segement, int offset)
-{
-	pcb->regImg.GS = 0xb800;
-	pcb->regImg.SS = segement;
-	pcb->regImg.ES = segement;
-	pcb->regImg.DS = segement;
-	pcb->regImg.CS = segement;
-	pcb->regImg.FS = segement;
-	pcb->regImg.IP = offset;
-	pcb->regImg.SP = offset - 4 - 16;/*特殊处理，在restart中会恢复成offset-4*/
-	pcb->regImg.AX = 0;
-	pcb->regImg.BX = 0;
-	pcb->regImg.CX = 0;
-	pcb->regImg.DX = 0;
-	pcb->regImg.DI = 0;
-	pcb->regImg.SI = 0;
-	pcb->regImg.BP = 0;
-	pcb->regImg.FLAGS = 512;
-	pcb->Process_Status = NEW;
-}
 
 void special()
 {

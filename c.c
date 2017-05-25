@@ -162,7 +162,6 @@ void load_pro(){
 	int i = 0;
 	int sq;
 	int cnt= 0;
-	init_pro();
 	for( i=0; i<len;i++ )
 	{
 		if( !is_num(string[i]) )
@@ -184,20 +183,19 @@ void load_pro(){
 			offset_user=offset_user4;
 		}
 		else if(string[i]=='5'){
-			offset_user=offset_user5;
+			offset_user=offset_user5;/*跳转到用户程序5*/
 		}
 		sq=string[i]-'0';
 		sq = sq*2;
 		another_load(offset_user,2,sq);
 		cnt ++;
 	}
-	Program_Num = cnt;
+	Program_Num = cnt; /*加载完后赋值避免出现冲突*/
 }
 
 
 cmain(){
-	pcb_list[0].Process_Status = READY;
-	CurrentPCBno = 0;
+	init_pro();
 	setClock();
 
 	while(1)
