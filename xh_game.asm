@@ -2,7 +2,7 @@ org 100h
 start:	
 	mov ax,6000h
 	mov ds,ax
-	mov ax,0b800h
+	mov ax,0xb800
 	mov es,ax
 	mov ax,0000h
 	mov ss,ax
@@ -176,7 +176,7 @@ return:
 return_os:
 	mov ax,word[score]
 	push ax
-	jmp 0000:08100h
+	jmp 0000:10100h
 	
 define:
 	dig dw 3ch

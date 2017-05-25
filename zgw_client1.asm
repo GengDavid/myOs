@@ -166,7 +166,7 @@ return:
 	mov es,ax
 	mov word[es:600h],0
 	mov byte[run],0
-	ret 
+	jmp $
 
 datadef:
 	mynm db 'zhanggengwei'

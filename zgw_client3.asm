@@ -163,7 +163,7 @@ return:
 	mov es,ax
 	mov word[es:604h],0
 	mov byte[run],0
-	ret
+	jmp $
 	
 datadef:
 	D_R equ 1

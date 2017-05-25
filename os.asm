@@ -814,14 +814,12 @@ _setClock proc
 	mov ax,cs
 	mov word ptr es:[22h],ax
 	
+	pop es
+	pop ds
+	pop dx
+	pop cx
+	pop bx
 	pop ax
-    mov es,ax
-    pop ax
-    mov ds,ax
-    pop dx
-    pop cx
-    pop bx
-    pop ax
 	ret
 _setClock endp
 
