@@ -176,7 +176,7 @@ return:
 return_os:
 	mov ax,word[score]
 	push ax
-	jmp 0000:10100h
+	jmp $
 	
 define:
 	dig dw 3ch

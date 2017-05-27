@@ -145,14 +145,12 @@ cal_pos()
 }
 
 
-
-void init_pro(){
+void init_os(){
 	init(&pcb_list[0],0x1000,0x100);
-	init(&pcb_list[1],offset_user1,0x100);
-	init(&pcb_list[2],offset_user2,0x100);
-	init(&pcb_list[3],offset_user3,0x100);
-	init(&pcb_list[4],offset_user4,0x100);
-	init(&pcb_list[5],offset_user5,0x100);
+}
+
+void init_pro(int i){	
+	init(&pcb_list[i],offset_user,0x100);
 }
 
 int is_num(char c){
@@ -189,13 +187,14 @@ void load_pro(){
 		sq = sq*2;
 		another_load(offset_user,2,sq);
 		cnt ++;
+		init_pro(cnt);
 	}
 	Program_Num = cnt; /*加载完后赋值避免出现冲突*/
 }
 
 
 cmain(){
-	init_pro();
+	init_os();
 	setClock();
 
 	while(1)

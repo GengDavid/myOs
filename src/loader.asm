@@ -21,10 +21,10 @@ AfterRun:
 
 	  times 510-($-$$) db 0
 	  db 0x55,0xaa
-	incbin 'zgw_client1.bin'
-	incbin 'zgw_client2.bin'
-	incbin 'zgw_client3.bin'
-	incbin 'zgw_client4.bin'
-	incbin 'xh_game.bin'
-	incbin 'test1.bin'
-	incbin 'os.com'
+	incbin '.\bin\zgw_client1.bin'
+	incbin '.\bin\zgw_client2.bin'
+	incbin '.\bin\zgw_client3.bin'
+	incbin '.\bin\zgw_client4.bin'
+	incbin '.\bin\xh_game.bin'
+	incbin '.\bin\test1.bin'
+	incbin '.\bin\os.com'
