@@ -149,7 +149,6 @@ void Schedule(){
 
 
 PCB* Current_Process(){
-	/*printChar(CurrentPCBno+'0');*/
 	return &pcb_list[CurrentPCBno];
 }
 
@@ -160,6 +159,7 @@ void special()
 		pcb_list[CurrentPCBno].Process_Status=READY;
 }
 
+/*do_fork原语*/
 int do_fork(){
 	PCB* p;
 	p = pcb_list + Program_Num + 1;
@@ -177,11 +177,6 @@ int do_fork(){
 		p ->  used = USED;
 		Program_Num++;
 	}
-	/*printChar(pcb_list[CurrentPCBno].regImg.IP%256);
-	printChar(' ');
-	printChar(p->regImg.IP%256);
-	printChar(' ');
-	printChar(' ');*/
 }
 
 void memcopy( PCB* F_PCB, PCB* C_PCB )
@@ -204,6 +199,7 @@ void memcopy( PCB* F_PCB, PCB* C_PCB )
 	C_PCB -> regImg.FLAGS = F_PCB -> regImg.FLAGS;
 }
 
+/*栈拷贝函数*/
 void stackcopy(PCB* F_PCB, PCB* C_PCB){
 	int i;
 	for(i=F_PCB->regImg.SP;i<=0x100;i=i+2){
@@ -211,10 +207,12 @@ void stackcopy(PCB* F_PCB, PCB* C_PCB){
 	}
 }
 
+/*do_wait原语*/
 void do_wait() {
        pcb_list[CurrentPCBno].Process_Status=BLOCK;
 }
 
+/*do_exit原语*/
 void do_exit(char ch) {
        pcb_list[CurrentPCBno].Process_Status=DEAD;
        pcb_list[CurrentPCBno].used=FREE; 

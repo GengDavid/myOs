@@ -915,7 +915,8 @@ _fork endp
 public _wait
 _wait proc
 	cli
-	mov sp,sp
+	push ax
+	pop ax
 	push ss 	;*/flags/cs/ip/ss
 	push ax	;*/flags/cs/ip/ss/ax/
 	push bx	;*/flags/cs/ip/ss/ax/bx/

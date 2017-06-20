@@ -22,6 +22,7 @@ char message1[80]="Welcome to use system of zgw and xh\n";
 char message2[80]="you can input some legal instructions\n";
 char message7[80]="    if you want to know the information of the program,input \'show\'\n";
 char message8[80]="       for example: show\n";
+char message9[80]="If you want to calculate the length of a string, input \'fork\' \n";
 char message11[80]="If you want to continue,input \'yes\'\n";
 char message13[80]="    If you want to run the program by Time-Sharing,input \'run\'\n";
 char message14[80]="		for example: run 1 2 3 4\n";
@@ -213,8 +214,11 @@ void display_fork(){
 		printstring("error in fork!\n");
 		do_exit(-1);
 	}
-	if(pid) {
+	if(pid) { /*父进程执行*/
 		wait();
+		printstring("The string to be calculate is :\n");
+		printstring(str2be_cnt);
+		printstring("\n");
 		printstring("Number of letter = ");
 		while(letter!=0){
 			printchar((letter%10)+'0');
@@ -222,7 +226,7 @@ void display_fork(){
 		}
 		printstring("\n");
 	}
-    else {
+    else { /*子进程执行*/
 		printstring("This is child process!\n");
 		letter = countLetter(str2be_cnt);
 		exit(0);
@@ -239,6 +243,7 @@ cmain(){
 		printstring(message2);
 		printstring(message7);
 		printstring(message8);
+		printstring(message9);
 		printstring(message13);
 		printstring(message14);
 		cin_cmd();
