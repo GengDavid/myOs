@@ -12,11 +12,15 @@ extrn _is_ouch:near
 
 extrn _Current_Process
 extrn _Save_Process
+extrn _Save_Process2
 extrn _Schedule
 extrn _Have_Program
 extrn _special
 extrn _Program_Num
 extrn _CurrentPCBno
+extrn _do_fork
+extrn _do_wait
+extrn _do_exit
 
 _TEXT segment byte public 'CODE'
 DGROUP group _TEXT,_DATA,_BSS
@@ -739,6 +743,8 @@ Pro_Timer:
 	mov ax,cs
 	mov ds,ax
 	mov es,ax
+	
+	call near ptr _special
 	call near ptr _Save_Process
 	call near ptr _Schedule 
 	call near ptr _Current_Process
@@ -748,7 +754,6 @@ Pro_Timer:
 	add sp,16 ;offset-4 用户栈空 
 	
 Restart:
-	call near ptr _special
 	push word ptr ds:[bp+30];*/psw/
 	push word ptr ds:[bp+28];*/psw/cs/
 	push word ptr ds:[bp+26];*/psw/cs/ip/
@@ -850,7 +855,192 @@ _another_load proc
 	pop ax
 	ret
 _another_load endp
+		
+public _data_copy
+_data_copy proc
+	push ax
+	push bx
+	push cx
+	push dx
+	push es
+	push ds
+	mov bp,sp
+	mov es,word ptr [bp+12+4]
+	mov ds,word ptr [bp+12+6];ff
+	mov bp,word ptr [bp+12+2]
+	mov bx, word ptr ds:[bp+0]
+	mov word ptr es:[bp+0], bx
+	pop ds
+	pop es
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret	
+_data_copy endp
+
+
+public _fork
+_fork proc
+	cli
+	push ss 	;*/flags/cs/ip/ss
+	push ax	;*/flags/cs/ip/ss/ax/
+	push bx	;*/flags/cs/ip/ss/ax/bx/
+	push cx	;*/flags/cs/ip/ss/ax/bx/cx/
+	push dx	;*/flags/cs/ip/ss/ax/bx/cx/dx/
+	push sp	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/
+	push bp	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/
+	push si	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/
+	push di	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/
+	push ds	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/ds/
+	push es	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/ds/es/
+	.386
+	push fs	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/ds/es/fs/
+	push gs	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/ds/es/fs/gs
+	.8086
 	
+	call near ptr _Save_Process
+	add sp,26 ; clear stack
+	call near ptr _do_fork
+	
+	push ax
+    mov al,20h
+	out 20h,al
+	out 0a0h,al
+	pop ax
+    sti
+    ret
+_fork endp
+
+public _wait
+_wait proc
+	cli
+	mov sp,sp
+	push ss 	;*/flags/cs/ip/ss
+	push ax	;*/flags/cs/ip/ss/ax/
+	push bx	;*/flags/cs/ip/ss/ax/bx/
+	push cx	;*/flags/cs/ip/ss/ax/bx/cx/
+	push dx	;*/flags/cs/ip/ss/ax/bx/cx/dx/
+	push sp	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/
+	push bp	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/
+	push si	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/
+	push di	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/
+	push ds	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/ds/
+	push es	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/ds/es/
+	.386
+	push fs	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/ds/es/fs/
+	push gs	;*/flags/cs/ip/ss/ax/bx/cx/dx/sp/bp/si/di/ds/es/fs/gs
+	.8086
+	
+	call near ptr _Save_Process
+	add sp,26 ; clear stack
+	call near ptr _do_wait
+	call near ptr _Schedule
+	call near ptr _Current_Process
+	mov bp,ax
+	mov ss,word ptr ds:[bp+0]
+	mov sp,word ptr ds:[bp+16];offset-20
+	add sp,16 ;offset-4 用户栈空 
+	
+RW:
+	push word ptr ds:[bp+30];*/psw/
+	push word ptr ds:[bp+28];*/psw/cs/
+	push word ptr ds:[bp+26];*/psw/cs/ip/
+	
+	push word ptr ds:[bp+2];*/psw/cs/ip/gs/
+	push word ptr ds:[bp+4];*/psw/cs/ip/gs/fs/
+	push word ptr ds:[bp+6];*/psw/cs/ip/gs/fs/es/
+	push word ptr ds:[bp+8];*/psw/cs/ip/gs/fs/es/ds/
+	push word ptr ds:[bp+10];*/psw/cs/ip/gs/fs/es/ds/di/
+	push word ptr ds:[bp+12];*/psw/cs/ip/gs/fs/es/ds/di/si/
+	push word ptr ds:[bp+14];*/psw/cs/ip/gs/fs/es/ds/di/si/bp/
+	push word ptr ds:[bp+18];*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/
+	push word ptr ds:[bp+20];*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/dx/
+	push word ptr ds:[bp+22];*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/dx/cx/
+	push word ptr ds:[bp+24];*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/dx/cx/ax/
+
+	pop ax;*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/dx/cx/
+	pop cx;*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/dx/
+	pop dx;*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/
+	pop bx;*/psw/cs/ip/gs/fs/es/ds/di/si/bp/
+	pop bp;*/psw/cs/ip/gs/fs/es/ds/di/si/
+	pop si;*/psw/cs/ip/gs/fs/es/ds/di/
+	pop di;*/psw/cs/ip/gs/fs/es/ds/
+	pop ds;*/psw/cs/ip/gs/fs/es/
+	pop es;*/psw/cs/ip/gs/fs/
+	.386
+	pop fs;*/psw/cs/ip/gs/
+	pop gs;*/psw/cs/ip/
+	.8086
+	
+	push ax
+    mov al,20h
+	out 20h,al
+	out 0a0h,al
+	pop ax
+    sti
+    ret
+_wait endp
+
+public _exit
+_exit proc
+	cli
+	mov bp,sp
+	mov bx, word ptr ds:[bp+0]
+	push bx
+	call near ptr _do_exit
+	pop bx
+	call near ptr _Schedule
+	call near ptr _Current_Process
+	mov bp,ax
+	mov ss,word ptr ds:[bp+0]
+	mov sp,word ptr ds:[bp+16];offset-20
+	add sp,16 ;offset-4 用户栈空 
+	
+RE:
+	push word ptr ds:[bp+30];*/psw/
+	push word ptr ds:[bp+28];*/psw/cs/
+	push word ptr ds:[bp+26];*/psw/cs/ip/
+	
+	push word ptr ds:[bp+2];*/psw/cs/ip/gs/
+	push word ptr ds:[bp+4];*/psw/cs/ip/gs/fs/
+	push word ptr ds:[bp+6];*/psw/cs/ip/gs/fs/es/
+	push word ptr ds:[bp+8];*/psw/cs/ip/gs/fs/es/ds/
+	push word ptr ds:[bp+10];*/psw/cs/ip/gs/fs/es/ds/di/
+	push word ptr ds:[bp+12];*/psw/cs/ip/gs/fs/es/ds/di/si/
+	push word ptr ds:[bp+14];*/psw/cs/ip/gs/fs/es/ds/di/si/bp/
+	push word ptr ds:[bp+18];*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/
+	push word ptr ds:[bp+20];*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/dx/
+	push word ptr ds:[bp+22];*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/dx/cx/
+	push word ptr ds:[bp+24];*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/dx/cx/ax/
+
+	pop ax;*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/dx/cx/
+	pop cx;*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/dx/
+	pop dx;*/psw/cs/ip/gs/fs/es/ds/di/si/bp/bx/
+	pop bx;*/psw/cs/ip/gs/fs/es/ds/di/si/bp/
+	pop bp;*/psw/cs/ip/gs/fs/es/ds/di/si/
+	pop si;*/psw/cs/ip/gs/fs/es/ds/di/
+	pop di;*/psw/cs/ip/gs/fs/es/ds/
+	pop ds;*/psw/cs/ip/gs/fs/es/
+	pop es;*/psw/cs/ip/gs/fs/
+	.386
+	pop fs;*/psw/cs/ip/gs/
+	pop gs;*/psw/cs/ip/
+	.8086
+	
+	
+	push ax
+    mov al,20h
+	out 20h,al
+	out 0a0h,al
+	pop ax
+	
+    sti
+    ret
+_exit endp
+
+_TEXT ends
+
 _TEXT ends
 
 ;************DATA segment*************

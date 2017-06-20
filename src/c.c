@@ -10,9 +10,14 @@ extern void filldata();
 extern void readdata();
 extern int put_color_char();
 extern void setClock();
+extern int fork();
+extern void wait();
+extern void exit(char status);
+
 extern void another_load(int segment,int num_sq,int offset);
 #include  "MyPCB.h"
 
+char str2be_cnt[80]="129djwqhdsajd128dw9i39ie93i8494urjoiew98kdkd";
 char message1[80]="Welcome to use system of zgw and xh\n";
 char message2[80]="you can input some legal instructions\n";
 char message7[80]="    if you want to know the information of the program,input \'show\'\n";
@@ -37,6 +42,7 @@ int y=0;
 int i=0;
 int a=0;
 int u=0;
+int letter=0;
 int d=0;/*data*/
 int offset_user=0x2000;
 const int offset_user1=0x2000;
@@ -53,6 +59,7 @@ int pos_shanqu=2;/*起始扇区数*/
 int px,py,pcolor,pdir,pbegin,p_cnt;
 char pch;
 char chs[4];
+
 c_paint()
 {
 	/*初始化*/
@@ -192,11 +199,39 @@ void load_pro(){
 	Program_Num = cnt; /*加载完后赋值避免出现冲突*/
 }
 
+int countLetter(char* str){
+	int i;
+	for(i=0;str[i]!='\0';i++);
+	return i;
+}
+
+void display_fork(){
+	int pid;
+	int i;
+	pid = fork();
+	if(pid==-1){
+		printstring("error in fork!\n");
+		do_exit(-1);
+	}
+	if(pid) {
+		wait();
+		printstring("Number of letter = ");
+		while(letter!=0){
+			printchar((letter%10)+'0');
+			letter = letter/10;
+		}
+		printstring("\n");
+	}
+    else {
+		printstring("This is child process!\n");
+		letter = countLetter(str2be_cnt);
+		exit(0);
+	}
+}
 
 cmain(){
 	init_os();
 	setClock();
-
 	while(1)
 	{
 		clear();
@@ -215,6 +250,12 @@ cmain(){
 			printstring(message_show3);
 			printstring(message_show4);
 			printstring(message_show5);
+			printstring(message11);
+			cin_cmd();
+			if(string[0]=='y') continue;
+		}
+		else if(string[0]=='f'){
+			display_fork();
 			printstring(message11);
 			cin_cmd();
 			if(string[0]=='y') continue;
